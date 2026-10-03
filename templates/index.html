@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% from "macros.html" import service_card, product_card, benefit_card %}
+
+{% block title %}Lavado y detailing premium{% endblock %}
+
+{% block content %}
+{# ================= HERO ================= #}
+<section class="hero">
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <span class="eyebrow">Car wash &amp; detailing premium</span>
+      <h1>Tu auto merece un <span class="accent">brillo</span> de <span class="accent-red">otro nivel</span>.</h1>
+      <p class="hero-lead">
+        En {{ brand_name }} combinamos técnica profesional, insumos de alta gama y obsesión por los detalles
+        para que tu vehículo luzca como recién salido de fábrica.
+      </p>
+      <div class="hero-actions">
+        {% if current_user %}
+          <a href="{{ url_for('admin_dashboard') if current_user.role == 'admin' else url_for('client_dashboard') }}" class="btn btn-primary btn-lg">
+            <i class="fa-solid fa-gauge-high"></i> Ir a mi panel
+          </a>
+        {% else %}
+          <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">
+            <i class="fa-solid fa-gift"></i> Regístrate para obtener nuestros beneficios
+          </a>
+        {% endif %}
+        <a href="#servicios" class="btn btn-outline btn-lg">Ver servicios</a>
+      </div>
+      <ul class="hero-trust">
+        <li><i class="fa-solid fa-leaf"></i> Productos biodegradables</li>
+        <li><i class="fa-solid fa-hand-sparkles"></i> Lavado 100% a mano</li>
+        <li><i class="fa-solid fa-award"></i> Equipo certificado</li>
+      </ul>
+    </div>
+
+    <div class="hero-visual">
+      <div class="hero-logo-card">
+        <img src="{{ logo.url }}" alt="{{ logo.alt }}">
+        <span class="brand-name"><span class="brand-nexus">NEXUS</span> <span class="brand-carwash">CAR WASH</span></span>
+        <small>Detailing profesional</small>
+        <span class="floating-chip chip-top"><i class="fa-solid fa-droplet text-blue"></i> Insumos de alta gama</span>
+        <span class="floating-chip chip-bottom"><i class="fa-solid fa-star text-red"></i> Club de beneficios</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ================= CATÁLOGO DE SERVICIOS (sin precios) ================= #}
+<section class="section" id="servicios">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Catálogo</span>
+      <h2>Nuestros servicios</h2>
+      <p>Cada servicio está pensado para proteger el valor de tu vehículo y devolverle su mejor versión.</p>
+    </div>
+    {% if services %}
+      <div class="grid grid-3">
+        {% for service in services %}{{ service_card(service) }}{% endfor %}
+      </div>
+    {% else %}
+      <p class="empty-state">Muy pronto publicaremos nuestro catálogo.</p>
+    {% endif %}
+  </div>
+</section>
+
+{# ================= PRODUCTOS UTILIZADOS ================= #}
+<section class="section section-alt" id="productos">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Calidad garantizada</span>
+      <h2>Productos que usamos</h2>
+      <p>Trabajamos solo con marcas líderes del detailing mundial: ceras orgánicas, siliconas sin solventes y selladores nanotecnológicos.</p>
+    </div>
+    <div class="grid grid-2">
+      {% for product in products %}{{ product_card(product) }}{% endfor %}
+    </div>
+  </div>
+</section>
+
+{# ================= BENEFICIOS DE CLIENTE REGISTRADO ================= #}
+<section class="section" id="beneficios">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Club NEXUS</span>
+      <h2>Beneficios de ser cliente registrado</h2>
+      <p>Regístrate gratis y empieza a disfrutar ventajas exclusivas: premios directos por tus visitas y un regalo el día de tu cumpleaños.</p>
+    </div>
+    <div class="grid grid-3 benefits-grid">
+      {% for benefit in benefits %}{{ benefit_card(benefit) }}{% endfor %}
+    </div>
+
+    <div class="cta-band">
+      <div>
+        <h2>¿Todavía no eres parte del club?</h2>
+        <p>Crea tu cuenta en menos de un minuto y empieza a sumar visitas para obtener tu regalo especial y tu lavado gratis.</p>
+      </div>
+      {% if current_user %}
+        <a href="{{ url_for('admin_dashboard') if current_user.role == 'admin' else url_for('client_dashboard') }}" class="btn btn-light btn-lg">Ir a mi panel</a>
+      {% else %}
+        <a href="{{ url_for('register') }}" class="btn btn-light btn-lg"><i class="fa-solid fa-user-plus"></i> Regístrate para obtener nuestros beneficios</a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

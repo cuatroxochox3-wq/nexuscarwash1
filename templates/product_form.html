@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Editar completamente el producto' if product else 'Agregar nuevo producto' }}{% endblock %}
+
+{% block content %}
+<section class="dash-header dash-header-compact">
+  <div class="container">
+    <span class="eyebrow">Administración · Insumos de calidad</span>
+    <h1 class="dash-title">{{ 'Editar completamente: ' ~ product.name if product else 'Agregar nuevo producto con especificaciones y foto' }}</h1>
+    {% include "_admin_nav.html" %}
+  </div>
+</section>
+
+<section class="section-sm">
+  <div class="container">
+    <a href="{{ url_for('admin_products') }}" class="back-link"><i class="fa-solid fa-arrow-left"></i> Volver a productos</a>
+
+    <form method="post" enctype="multipart/form-data"
+          action="{{ url_for('edit_product', product_id=product.id) if product else url_for('edit_product') }}"
+          class="service-form-layout">
+
+      {# ================= FOTO DEL PRODUCTO ================= #}
+      <div class="panel">
+        <div class="panel-head"><h2><i class="fa-solid fa-camera"></i> Foto del producto / envase</h2></div>
+        <div class="panel-body">
+          <div class="photo-preview" data-photo-preview>
+            {% if product and product.image_src %}
+              <img src="{{ product.image_src }}" alt="{{ product.name }}" data-photo-img>
+            {% else %}
+              <img src="" alt="" data-photo-img hidden>
+              <span class="photo-empty" data-photo-empty><i class="fa-solid fa-image"></i> Sin foto</span>
+            {% endif %}
+          </div>
+
+          <label class="upload-box" for="image">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <span><strong>Subir foto</strong> del envase o aplicación</span>
+            <small>JPG, PNG o WEBP · guardado directo en MongoDB (máx. 5 MB)</small>
+          </label>
+          <input type="file" id="image" name="image" accept="image/png,image/jpeg,image/webp,image/svg+xml" class="visually-hidden" data-photo-input>
+          <p class="form-hint" data-photo-name></p>
+
+          {% if product and product.has_image %}
+          <label class="checkbox">
+            <input type="checkbox" name="remove_image" value="1"> Quitar la foto subida
+          </label>
+          {% endif %}
+
+          <div class="form-group form-group-spaced">
+            <label class="form-label" for="image_url">O usar una foto por enlace externo <span class="muted">(opcional)</span></label>
+            <input class="input" type="url" id="image_url" name="image_url" value="{{ form.get('image_url', '') }}" placeholder="https://...">
+            <p class="form-hint">Si subes una foto, tendrá prioridad sobre el enlace.</p>
+          </div>
+        </div>
+      </div>
+
+      {# ================= DATOS DEL PRODUCTO ================= #}
+      <div class="panel">
+        <div class="panel-head"><h2><i class="fa-solid fa-pen-to-square"></i> Información del producto</h2></div>
+        <div class="panel-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="name">Nombre del producto <span class="req">*</span></label>
+              <input class="input" type="text" id="name" name="name" value="{{ form.get('name', '') }}"
+                     placeholder="Ej: Ceras de Carnauba Orgánicas" minlength="3" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="brand">Marca / Fabricante <span class="req">*</span></label>
+              <input class="input" type="text" id="brand" name="brand" value="{{ form.get('brand', '') }}"
+                     placeholder="Ej: Meguiar's · Koch-Chemie" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="category">Categoría <span class="req">*</span></label>
+              <input class="input" type="text" id="category" name="category" value="{{ form.get('category', '') }}"
+                     placeholder="Ej: Protección de pintura, Interiores" required>
+            </div>
+            <div class="form-group">
+              {% set selected_icon = form.get('icon', '') %}
+              <label class="form-label" for="icon">Ícono</label>
+              <select class="input" id="icon" name="icon">
+                {% for value, label in icons %}
+                <option value="{{ value }}" {{ 'selected' if selected_icon == value else '' }}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox" style="color: var(--nx-black);">
+              <input type="checkbox" name="eco" value="1" {{ 'checked' if form.get('eco') else '' }}>
+              <strong><i class="fa-solid fa-leaf text-green"></i> Producto ecológico / biodegradable (Eco-friendly)</strong>
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="description">Descripción del producto <span class="req">*</span></label>
+            <textarea class="input" id="description" name="description" rows="3" minlength="10"
+                      placeholder="Explica las propiedades del insumo y cómo cuida el vehículo..." required>{{ form.get('description', '') }}</textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="benefits">Beneficios destacados <span class="muted">(un beneficio por línea, máx. 6)</span></label>
+            <textarea class="input" id="benefits" name="benefits" rows="4"
+                      placeholder="Biodegradable y sin solventes agresivos&#10;Brillo profundo con efecto hidrofóbico&#10;Protección UV prolongada">{{ benefits_text }}</textarea>
+            <p class="form-hint">Cada línea aparecerá como una etiqueta destacada en la tarjeta del producto.</p>
+          </div>
+
+          <div class="form-actions">
+            <a href="{{ url_for('admin_products') }}" class="btn btn-outline">Cancelar</a>
+            <button type="submit" class="btn btn-primary btn-lg">
+              <i class="fa-solid fa-floppy-disk"></i> {{ 'Guardar cambios completos' if product else 'Crear y publicar producto' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="{{ brand_name }} - Lavado y detailing premium con insumos de alta gama y club de beneficios.">
+  <title>{% block title %}Inicio{% endblock %} · {{ brand_name }}</title>
+
+  <link rel="icon" href="{{ logo.url }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:ital,wght@0,600;0,700;0,800;0,900;1,800;1,900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" referrerpolicy="no-referrer">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+  <div class="top-stripe" aria-hidden="true"></div>
+
+  {# ================= ENCABEZADO: logo desde MongoDB + nombre de la marca ================= #}
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="{{ url_for('index') }}" class="brand" aria-label="{{ brand_name }} - Inicio">
+        <img src="{{ logo.url }}" alt="{{ logo.alt }}" class="brand-logo" width="52" height="52">
+        <span class="brand-name"><span class="brand-nexus">NEXUS</span> <span class="brand-carwash">CAR WASH</span></span>
+      </a>
+
+      <button class="nav-toggle" type="button" aria-label="Abrir menú" aria-expanded="false" data-nav-toggle>
+        <i class="fa-solid fa-bars"></i>
+      </button>
+
+      <nav class="main-nav" data-nav>
+        <a href="{{ url_for('index') }}#servicios">Servicios</a>
+        <a href="{{ url_for('index') }}#productos">Productos</a>
+        <a href="{{ url_for('index') }}#beneficios">Beneficios</a>
+        <div class="nav-actions">
+          {% if current_user %}
+            {% if current_user.role == 'admin' %}
+              <a href="{{ url_for('admin_dashboard') }}" class="btn btn-primary btn-sm"><i class="fa-solid fa-user-shield"></i> Panel admin</a>
+            {% else %}
+              <a href="{{ url_for('client_dashboard') }}" class="btn btn-primary btn-sm"><i class="fa-solid fa-id-card"></i> Mi panel</a>
+            {% endif %}
+            <form action="{{ url_for('logout') }}" method="post" class="inline-form">
+              <button type="submit" class="btn btn-outline btn-sm"><i class="fa-solid fa-right-from-bracket"></i> Salir</button>
+            </form>
+          {% else %}
+            <a href="{{ url_for('login') }}" class="btn btn-outline btn-sm">Ingresar</a>
+            <a href="{{ url_for('register') }}" class="btn btn-primary btn-sm">Registrarme</a>
+          {% endif %}
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  {% if using_mock_db %}
+  <div class="dev-banner">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    MongoDB no está disponible: se usa una base de datos en memoria. Los cambios se perderán al reiniciar.
+  </div>
+  {% endif %}
+
+  {# ================= MENSAJES FLASH ================= #}
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="container flash-stack">
+      {% for category, message in messages %}
+      <div class="alert alert-{{ category }}" role="alert" data-flash>
+        <span>{{ message }}</span>
+        <button type="button" class="alert-close" aria-label="Cerrar" data-flash-close>&times;</button>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  {% endwith %}
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  {# ================= PIE DE PÁGINA ================= #}
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <a href="{{ url_for('index') }}" class="brand brand-footer">
+          <img src="{{ logo.url }}" alt="{{ logo.alt }}" class="brand-logo" width="44" height="44">
+          <span class="brand-name"><span class="brand-nexus">NEXUS</span> <span class="brand-carwash">CAR WASH</span></span>
+        </a>
+        <nav class="footer-links">
+          <a href="{{ url_for('index') }}#servicios">Servicios</a>
+          <a href="{{ url_for('index') }}#productos">Productos</a>
+          <a href="{{ url_for('index') }}#beneficios">Beneficios</a>
+          <a href="{{ instagram_url }}" target="_blank" rel="noopener noreferrer">Instagram</a>
+        </nav>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; {{ current_year }} {{ brand_name }}. Todos los derechos reservados.</span>
+        <span>Detailing profesional · Insumos de alta gama</span>
+      </div>
+    </div>
+  </footer>
+
+  {# ================= BOTONES FLOTANTES DE CONTACTO ================= #}
+  <div class="floating-contact">
+    <a href="{{ whatsapp_url }}" class="float-btn float-whatsapp" target="_blank" rel="noopener noreferrer" aria-label="Escríbenos por WhatsApp">
+      <i class="fa-brands fa-whatsapp"></i>
+      <span class="float-label">Escríbenos por WhatsApp</span>
+    </a>
+    <a href="{{ instagram_url }}" class="float-btn float-instagram" target="_blank" rel="noopener noreferrer" aria-label="Síguenos en Instagram">
+      <i class="fa-brands fa-instagram"></i>
+      <span class="float-label">Síguenos en Instagram</span>
+    </a>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

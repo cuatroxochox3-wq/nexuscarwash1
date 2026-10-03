@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Servicios{% endblock %}
+
+{% block content %}
+<section class="dash-header dash-header-compact">
+  <div class="container">
+    <div class="dash-title-row">
+      <div>
+        <span class="eyebrow">Administración</span>
+        <h1 class="dash-title">Gestión de servicios</h1>
+      </div>
+      <div class="dash-quick-actions">
+        <a href="{{ url_for('edit_service') }}" class="btn btn-primary">
+          <i class="fa-solid fa-plus"></i> Agregar nuevo servicio
+        </a>
+      </div>
+    </div>
+    {% include "_admin_nav.html" %}
+  </div>
+</section>
+
+<section class="section-sm">
+  <div class="container">
+    <div class="section-title-row">
+      <div>
+        <h2>Catálogo de servicios <span class="count-pill">{{ services|length }}</span></h2>
+        <p>Crea nuevos servicios con su foto y especificaciones, o edita completamente cualquiera de los existentes.</p>
+      </div>
+      <a href="{{ url_for('edit_service') }}" class="btn btn-primary btn-lg">
+        <i class="fa-solid fa-circle-plus"></i> Agregar nuevo servicio
+      </a>
+    </div>
+
+    {% if services %}
+    <div class="grid grid-3">
+      {% for service in services %}
+      <article class="admin-service-card">
+        <div class="service-media">
+          {% if service.image_src %}
+            <img src="{{ service.image_src }}" alt="{{ service.name }}" loading="lazy" onerror="this.style.display='none'">
+          {% else %}
+            <span class="service-media-icon"><i class="{{ service.icon }}"></i></span>
+          {% endif %}
+          <span class="photo-source">
+            {% if service.has_image %}<i class="fa-solid fa-database"></i> Foto en MongoDB
+            {% elif service.image_url %}<i class="fa-solid fa-link"></i> Foto por enlace
+            {% else %}<i class="fa-solid fa-image"></i> Sin foto{% endif %}
+          </span>
+          {% if service.badge %}
+            <span class="service-badge">{{ service.badge }}</span>
+          {% endif %}
+        </div>
+        <div class="admin-service-body">
+          <span class="service-category">{{ service.category }}</span>
+          <h3>{{ service.name }}</h3>
+          <p>{{ service.description|truncate(120) }}</p>
+          
+          {% if service.features %}
+          <div class="service-features-preview">
+            <span class="fs-xs text-muted"><strong>Especificaciones ({{ service.features|length }}):</strong></span>
+            <ul class="features-mini-list">
+              {% for feat in service.features[:3] %}
+              <li><i class="fa-solid fa-check text-blue"></i> {{ feat }}</li>
+              {% endfor %}
+              {% if service.features|length > 3 %}
+              <li class="muted fs-xs">+ {{ service.features|length - 3 }} más...</li>
+              {% endif %}
+            </ul>
+          </div>
+          {% endif %}
+
+          <div class="actions actions-left service-actions-bar">
+            <a href="{{ url_for('edit_service', service_id=service.id) }}" class="btn btn-primary btn-sm" title="Editar completamente nombre, descripción, especificaciones y foto">
+              <i class="fa-solid fa-pen-to-square"></i> Editar completamente
+            </a>
+            <form method="post" action="{{ url_for('delete_service', service_id=service.id) }}" class="inline-form"
+                  data-confirm="¿Eliminar el servicio {{ service.name }}? Esta acción no se puede deshacer.">
+              <button type="submit" class="btn btn-sm btn-icon btn-danger-soft" title="Eliminar servicio" aria-label="Eliminar {{ service.name }}">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+      <div class="panel">
+        <p class="empty-state">No hay servicios cargados. Haz clic en el botón para crear el primero.</p>
+        <div class="text-center mt-3">
+          <a href="{{ url_for('edit_service') }}" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Agregar nuevo servicio</a>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

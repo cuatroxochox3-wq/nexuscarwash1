@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Clientes y fidelidad{% endblock %}
+
+{% block content %}
+<section class="dash-header">
+  <div class="container">
+    <div class="dash-title-row">
+      <div>
+        <span class="eyebrow">Administración</span>
+        <h1 class="dash-title">Panel de {{ brand_name }}</h1>
+      </div>
+      <div class="dash-quick-actions">
+        <a href="{{ url_for('edit_service') }}" class="btn btn-primary">
+          <i class="fa-solid fa-plus"></i> Agregar nuevo servicio
+        </a>
+      </div>
+    </div>
+    {% include "_admin_nav.html" %}
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-icon"><i class="fa-solid fa-users"></i></span>
+        <div><div class="stat-value">{{ stats.total_clients }}</div><div class="stat-label">Clientes registrados</div></div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon red"><i class="fa-solid fa-cake-candles"></i></span>
+        <div>
+          <div class="stat-value">{{ stats.birthday_today }}</div>
+          <div class="stat-label">Cumplen años hoy · {{ stats.birthday_this_month }} este mes</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon dark"><i class="fa-solid fa-car-side"></i></span>
+        <div><div class="stat-value">{{ stats.total_visits }}</div><div class="stat-label">Visitas totales</div></div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon text-blue"><i class="fa-solid fa-gift"></i></span>
+        <div>
+          <div class="stat-value">{{ stats.clients_with_gift }} / {{ stats.clients_with_free_wash }}</div>
+          <div class="stat-label">Con regalo (4v) · Con lavado gratis (8v)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section-sm">
+  <div class="container">
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Clientes y fidelidad <span class="count-pill">{{ clients|length }}</span></h2>
+          <span class="muted">Marca cada visita con <strong>+ 1 Visita</strong> o usa <strong>Editar cliente</strong> para actualizar todos sus datos y contraseña.</span>
+        </div>
+        <div class="input-wrap search-input">
+          <i class="fa-solid fa-magnifying-glass lead"></i>
+          <input type="search" class="input" placeholder="Buscar por nombre, usuario o teléfono"
+                 data-table-filter="#clients-table" aria-label="Buscar clientes">
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="table" id="clients-table">
+          <thead>
+            <tr>
+              <th>Cliente</th>
+              <th>Usuario</th>
+              <th>Nacimiento</th>
+              <th>Contacto</th>
+              <th>Fidelidad (Visitas)</th>
+              <th>Rol</th>
+              <th class="text-right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in clients %}
+            <tr data-search="{{ (c.full_name ~ ' ' ~ c.username ~ ' ' ~ c.phone)|lower }}">
+              <td>
+                <div class="client-cell">
+                  <span class="avatar {{ 'avatar-admin' if c.role == 'admin' else '' }}">{{ (c.full_name[:1] or '?')|upper }}</span>
+                  <div>
+                    <div class="client-name">{{ c.full_name }}</div>
+                    <div class="muted">Alta: {{ c.created_at|fecha }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>@{{ c.username }}</td>
+              <td>
+                {{ c.birth_date|fecha }}
+                {% if c.is_birthday_today %}
+                  <span class="bday-tag"><i class="fa-solid fa-cake-candles"></i> ¡Hoy!</span>
+                {% elif c.is_birthday_month %}
+                  <span class="bday-dot" title="Cumple años este mes"><i class="fa-solid fa-cake-candles"></i></span>
+                {% endif %}
+              </td>
+              <td>
+                {% if c.phone %}
+                  <a href="tel:{{ c.phone }}">{{ c.phone }}</a>
+                {% else %}
+                  <span class="muted">Sin teléfono</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="loyalty-cell">
+                  <strong>{{ c.visits }} visita{{ '' if c.visits == 1 else 's' }}</strong>
+                  <div class="rewards-tags">
+                    {% if c.has_free_wash %}
+                      <span class="badge-reward wash" title="Alcanzó 8 visitas"><i class="fa-solid fa-car-side"></i> Lavado gratis</span>
+                    {% elif c.has_gift %}
+                      <span class="badge-reward gift" title="Alcanzó 4 visitas"><i class="fa-solid fa-gift"></i> Regalo 4v</span>
+                      <small class="muted">Faltan {{ c.visits_left }} para lavado</small>
+                    {% else %}
+                      <small class="muted">Faltan {{ c.visits_left }} para regalo</small>
+                    {% endif %}
+                  </div>
+                  {% if c.last_visit %}<span class="muted fs-xs">Última: {{ c.last_visit|fecha }}</span>{% endif %}
+                </div>
+              </td>
+              <td><span class="role-tag role-{{ c.role }}">{{ 'Administrador' if c.role == 'admin' else 'Cliente' }}</span></td>
+              <td>
+                <div class="actions">
+                  {% if c.role == 'client' %}
+                  <form method="post" action="{{ url_for('add_loyalty', user_id=c.id) }}" class="inline-form">
+                    <input type="hidden" name="note" value="Visita registrada en el lavadero">
+                    <button type="submit" class="btn btn-sm btn-success-soft" title="Sumar 1 visita al cliente">
+                      <i class="fa-solid fa-plus"></i> 1 Visita
+                    </button>
+                  </form>
+                  {% endif %}
+                  <a href="{{ url_for('edit_client', user_id=c.id) }}" class="btn btn-sm btn-primary-soft" title="Editar información completa y contraseña">
+                    <i class="fa-solid fa-pen-to-square"></i> Editar
+                  </a>
+                  {% if c.id != current_user.id %}
+                  <form method="post" action="{{ url_for('delete_client', user_id=c.id) }}" class="inline-form"
+                        data-confirm="¿Eliminar a {{ c.full_name }}? Esta acción no se puede deshacer.">
+                    <button type="submit" class="btn btn-sm btn-icon btn-danger-soft" title="Eliminar cliente" aria-label="Eliminar a {{ c.full_name }}">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </form>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" class="empty-state">Todavía no hay clientes registrados.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <p class="empty-state" data-filter-empty hidden>No hay clientes que coincidan con la búsqueda.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

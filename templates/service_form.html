@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Editar completamente el servicio' if service else 'Agregar nuevo servicio' }}{% endblock %}
+
+{% block content %}
+<section class="dash-header dash-header-compact">
+  <div class="container">
+    <span class="eyebrow">Administración · Servicios</span>
+    <h1 class="dash-title">{{ 'Editar completamente: ' ~ service.name if service else 'Agregar nuevo servicio con especificación y foto' }}</h1>
+    {% include "_admin_nav.html" %}
+  </div>
+</section>
+
+<section class="section-sm">
+  <div class="container">
+    <a href="{{ url_for('admin_services') }}" class="back-link"><i class="fa-solid fa-arrow-left"></i> Volver a servicios</a>
+
+    <form method="post" enctype="multipart/form-data"
+          action="{{ url_for('edit_service', service_id=service.id) if service else url_for('edit_service') }}"
+          class="service-form-layout">
+
+      {# ================= FOTO ================= #}
+      <div class="panel">
+        <div class="panel-head"><h2><i class="fa-solid fa-camera"></i> Foto del servicio</h2></div>
+        <div class="panel-body">
+          <div class="photo-preview" data-photo-preview>
+            {% if service and service.image_src %}
+              <img src="{{ service.image_src }}" alt="{{ service.name }}" data-photo-img>
+            {% else %}
+              <img src="" alt="" data-photo-img hidden>
+              <span class="photo-empty" data-photo-empty><i class="fa-solid fa-image"></i> Sin foto</span>
+            {% endif %}
+          </div>
+
+          <label class="upload-box" for="image">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <span><strong>Subir foto</strong> desde tu computadora o celular</span>
+            <small>JPG, PNG o WEBP · máximo 5 MB</small>
+          </label>
+          <input type="file" id="image" name="image" accept="image/png,image/jpeg,image/webp,image/svg+xml" class="visually-hidden" data-photo-input>
+          <p class="form-hint" data-photo-name></p>
+
+          {% if service and service.has_image %}
+          <label class="checkbox">
+            <input type="checkbox" name="remove_image" value="1"> Quitar la foto subida
+          </label>
+          {% endif %}
+
+          <div class="form-group form-group-spaced">
+            <label class="form-label" for="image_url">O usar una foto por enlace <span class="muted">(opcional)</span></label>
+            <input class="input" type="url" id="image_url" name="image_url" value="{{ form.get('image_url', '') }}" placeholder="https://...">
+            <p class="form-hint">Si subes una foto, tiene prioridad sobre el enlace.</p>
+          </div>
+        </div>
+      </div>
+
+      {# ================= DATOS ================= #}
+      <div class="panel">
+        <div class="panel-head"><h2><i class="fa-solid fa-pen-to-square"></i> Información</h2></div>
+        <div class="panel-body">
+          <div class="form-group">
+            <label class="form-label" for="name">Nombre del servicio <span class="req">*</span></label>
+            <input class="input" type="text" id="name" name="name" value="{{ form.get('name', '') }}" minlength="3" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="category">Categoría <span class="req">*</span></label>
+              <input class="input" type="text" id="category" name="category" value="{{ form.get('category', '') }}"
+                     placeholder="Ej: Lavado exterior" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="badge">Etiqueta <span class="muted">(opcional)</span></label>
+              <input class="input" type="text" id="badge" name="badge" value="{{ form.get('badge', '') }}"
+                     maxlength="30" placeholder="Ej: Más elegido">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="description">Descripción <span class="req">*</span></label>
+            <textarea class="input" id="description" name="description" rows="4" minlength="10" required>{{ form.get('description', '') }}</textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="features">Especificaciones / Qué incluye <span class="muted">(una especificación técnica por línea, máx. 8)</span></label>
+            <textarea class="input" id="features" name="features" rows="5" placeholder="Prelavado con espuma activa pH neutro&#10;Lavado a mano en dos baldes&#10;Secado con microfibra de alta densidad">{{ features_text }}</textarea>
+            <p class="form-hint">Cada línea se mostrará como una característica con viñeta en el catálogo.</p>
+          </div>
+
+          <div class="form-group">
+            {% set selected_icon = form.get('icon', '') %}
+            <label class="form-label" for="icon">Ícono representativo</label>
+            <select class="input" id="icon" name="icon">
+              {% for value, label in icons %}
+              <option value="{{ value }}" {{ 'selected' if selected_icon == value else '' }}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-actions">
+            <a href="{{ url_for('admin_services') }}" class="btn btn-outline">Cancelar</a>
+            <button type="submit" class="btn btn-primary btn-lg">
+              <i class="fa-solid fa-floppy-disk"></i> {{ 'Guardar cambios completos' if service else 'Crear y publicar servicio' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}

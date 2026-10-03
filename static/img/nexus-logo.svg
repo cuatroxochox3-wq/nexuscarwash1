@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-label="NEXUS CAR WASH">
+  <!-- Logo de respaldo de NEXUS CAR WASH. Se carga en MongoDB la primera vez.
+       Reemplázalo por el logo oficial desde el panel admin o con cargar_logo.py -->
+  <defs>
+    <linearGradient id="nxBlue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1554C4"/>
+      <stop offset="1" stop-color="#0B3D91"/>
+    </linearGradient>
+    <linearGradient id="nxRed" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#FF2A1F"/>
+      <stop offset="1" stop-color="#C40500"/>
+    </linearGradient>
+  </defs>
+  <circle cx="120" cy="120" r="112" fill="#FFFFFF" stroke="#0F172A" stroke-width="8"/>
+  <circle cx="120" cy="120" r="96" fill="url(#nxBlue)"/>
+  <!-- Gota de agua -->
+  <path d="M178 58 C184 70 192 80 192 90 A14 14 0 0 1 164 90 C164 80 172 70 178 58 Z" fill="#FFFFFF" opacity="0.92"/>
+  <!-- N estilizada -->
+  <path d="M64 168 V72 H88 L132 130 V72 H156 V168 H132 L88 110 V168 Z" fill="#FFFFFF"/>
+  <!-- Trazo deportivo rojo -->
+  <path d="M26 152 C80 128 150 122 216 138 C150 134 92 146 38 174 Z" fill="url(#nxRed)"/>
+</svg>

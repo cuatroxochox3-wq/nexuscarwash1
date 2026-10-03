@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Iniciar sesión{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+  <div class="auth-card">
+    <div class="auth-head">
+      <img src="{{ logo.url }}" alt="{{ logo.alt }}">
+      <h1>Bienvenido a <span class="brand-nexus">NEXUS</span> <span class="brand-carwash">CAR WASH</span></h1>
+      <p>Ingresa a tu cuenta para ver tus puntos y beneficios.</p>
+    </div>
+
+    <form method="post" action="{{ url_for('login', next=request.args.get('next')) }}">
+      <div class="form-group">
+        <label class="form-label" for="username">Usuario</label>
+        <div class="input-wrap">
+          <i class="fa-solid fa-user lead"></i>
+          <input class="input" type="text" id="username" name="username" value="{{ username }}"
+                 placeholder="Tu nombre de usuario" autocomplete="username" required autofocus>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">Contraseña</label>
+        <div class="input-wrap">
+          <i class="fa-solid fa-lock lead"></i>
+          <input class="input" type="password" id="password" name="password"
+                 placeholder="••••••••" autocomplete="current-password" required>
+          <button type="button" class="input-action" data-toggle-password="password" aria-label="Mostrar contraseña">
+            <i class="fa-solid fa-eye"></i>
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-dark btn-block btn-lg">
+        <i class="fa-solid fa-right-to-bracket"></i> Iniciar sesión
+      </button>
+    </form>
+
+    <div class="auth-divider"><span>¿Aún no tienes cuenta?</span></div>
+
+    {# Botón de registro destacado en AZUL con el texto exacto solicitado #}
+    <a href="{{ url_for('register') }}" class="btn btn-primary btn-block btn-lg btn-register">
+      <i class="fa-solid fa-gift"></i> Regístrate para obtener nuestros beneficios
+    </a>
+
+    <div class="demo-box">
+      <strong>Cuentas de demostración:</strong><br>
+      Admin: <code>admin</code> / <code>admin123</code> · Cliente: <code>carlos92</code> / <code>cliente123</code>
+    </div>
+  </div>
+</section>
+{% endblock %}

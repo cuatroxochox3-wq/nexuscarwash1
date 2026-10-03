@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}Editar cliente{% endblock %}
+
+{% block content %}
+<section class="dash-header dash-header-compact">
+  <div class="container">
+    <span class="eyebrow">Administración</span>
+    <h1 class="dash-title">Ficha del cliente</h1>
+    {% include "_admin_nav.html" %}
+  </div>
+</section>
+
+<section class="section-sm">
+  <div class="container">
+    <a href="{{ url_for('admin_dashboard') }}" class="back-link"><i class="fa-solid fa-arrow-left"></i> Volver al listado</a>
+
+    <div class="client-layout">
+      {# ================= DATOS DEL CLIENTE (edición total) ================= #}
+      <div class="panel">
+        <div class="panel-head">
+          <div class="client-cell">
+            <span class="avatar {{ 'avatar-admin' if client.role == 'admin' else '' }}">{{ (client.full_name[:1] or '?')|upper }}</span>
+            <div>
+              <h2>{{ client.full_name }}</h2>
+              <span class="muted">@{{ client.username }} · Alta: {{ client.created_at|fecha }}</span>
+            </div>
+          </div>
+        </div>
+
+        <form method="post" action="{{ url_for('edit_client', user_id=client.id) }}" class="panel-body">
+          <h3 class="form-section-title"><i class="fa-solid fa-id-card"></i> Datos personales</h3>
+          <div class="form-group">
+            <label class="form-label" for="full_name">Nombre completo <span class="req">*</span></label>
+            <input class="input" type="text" id="full_name" name="full_name" value="{{ form.get('full_name', '') }}" minlength="3" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="username">Nombre de usuario <span class="req">*</span></label>
+              <input class="input" type="text" id="username" name="username" value="{{ form.get('username', '') }}"
+                     pattern="[A-Za-z0-9._]{3,30}" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="birth_date">Fecha de nacimiento <span class="req">*</span></label>
+              <input class="input" type="date" id="birth_date" name="birth_date" value="{{ form.get('birth_date', '') }}" max="{{ today }}" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="phone">Teléfono</label>
+              <input class="input" type="tel" id="phone" name="phone" value="{{ form.get('phone', '') }}" placeholder="+54 9 11 1234-5678">
+            </div>
+            <div class="form-group">
+              {% set selected_role = form.get('role', 'client') %}
+              <label class="form-label" for="role">Rol</label>
+              <select class="input" id="role" name="role">
+                <option value="client" {{ 'selected' if selected_role == 'client' else '' }}>Cliente</option>
+                <option value="admin" {{ 'selected' if selected_role == 'admin' else '' }}>Administrador</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="visits">Visitas acumuladas <span class="muted">(contador manual de fidelidad)</span></label>
+            <input class="input" type="number" id="visits" name="visits" value="{{ form.get('visits', client.visits) }}" min="0" step="1">
+            <p class="form-hint">4 visitas = un regalo de la casa · 8 visitas = un lavado gratis.</p>
+          </div>
+
+          {# Restablecer contraseña (por si el cliente la olvida) #}
+          <div class="password-reset">
+            <h3 class="form-section-title"><i class="fa-solid fa-key"></i> Restablecer contraseña</h3>
+            <p class="form-hint">
+              Por seguridad, las contraseñas se guardan cifradas y no se pueden ver. Si el cliente la olvidó,
+              escribe una nueva (o genera una) y compártela con él. Déjalo vacío para no cambiarla.
+            </p>
+            <div class="password-row">
+              <div class="input-wrap">
+                <input class="input input-plain" type="password" id="password" name="password" minlength="6"
+                       placeholder="Nueva contraseña (mín. 6 caracteres)" autocomplete="new-password">
+                <button type="button" class="input-action" data-toggle-password="password" aria-label="Mostrar contraseña">
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+              </div>
+              <button type="button" class="btn btn-outline btn-sm" data-generate-password="password">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Generar
+              </button>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline">Cancelar</a>
+            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Guardar cambios completos</button>
+          </div>
+        </form>
+      </div>
+
+      {# ================= FIDELIDAD (VISITAS) ================= #}
+      <div class="panel" id="fidelidad">
+        <div class="panel-head">
+          <h2><i class="fa-solid fa-car-side text-red"></i> Fidelidad por visitas</h2>
+          {% if client.is_birthday_today %}<span class="bday-tag"><i class="fa-solid fa-cake-candles"></i> ¡Cumple hoy!</span>{% endif %}
+        </div>
+        <div class="panel-body">
+          <div class="loyalty-summary">
+            <div><span class="loyalty-big">{{ client.visits }}</span><span class="muted">visitas acumuladas</span></div>
+            <div>
+              <span class="loyalty-badge-box">
+                {% if client.has_free_wash %}
+                  <span class="badge-reward wash"><i class="fa-solid fa-car-side"></i> Lavado gratis (8v)</span>
+                {% elif client.has_gift %}
+                  <span class="badge-reward gift"><i class="fa-solid fa-gift"></i> Regalo especial (4v)</span>
+                {% else %}
+                  <span class="badge-reward pending">En camino a 4v</span>
+                {% endif %}
+              </span>
+              <span class="muted">estado de premio</span>
+            </div>
+            <div><span class="loyalty-date">{{ client.last_visit|fecha if client.last_visit else 'Sin registrar' }}</span><span class="muted">última visita</span></div>
+          </div>
+
+          <div class="rewards-info-box">
+            <h4>Metas de fidelidad:</h4>
+            <ul>
+              <li class="{{ 'unlocked' if client.has_gift else '' }}">
+                <i class="fa-solid {{ 'fa-circle-check text-green' if client.has_gift else 'fa-circle-dot text-muted' }}"></i>
+                <strong>4 Visitas:</strong> Un regalo especial de la casa
+                {% if not client.has_gift %}<span class="muted fs-xs">(Faltan {{ client.visits_left if client.visits < 4 else 0 }})</span>{% endif %}
+              </li>
+              <li class="{{ 'unlocked' if client.has_free_wash else '' }}">
+                <i class="fa-solid {{ 'fa-circle-check text-green' if client.has_free_wash else 'fa-circle-dot text-muted' }}"></i>
+                <strong>8 Visitas:</strong> Un lavado premium gratis
+                {% if not client.has_free_wash %}<span class="muted fs-xs">(Faltan {{ 8 - client.visits if client.visits < 8 else 0 }})</span>{% endif %}
+              </li>
+            </ul>
+          </div>
+
+          <form method="post" action="{{ url_for('add_loyalty', user_id=client.id) }}" class="loyalty-form">
+            <input type="hidden" name="next" value="edit">
+            <div class="form-group">
+              <label class="form-label" for="note">Nota de la visita <span class="muted">(servicio realizado)</span></label>
+              <input class="input" type="text" id="note" name="note" maxlength="200" placeholder="Ej: Lavado Foam & Gloss">
+              <p class="form-hint">Cada registro suma automáticamente 1 visita al cliente y actualiza sus premios.</p>
+            </div>
+            <button type="submit" class="btn btn-success btn-block btn-lg">
+              <i class="fa-solid fa-plus"></i> Registrar +1 visita al cliente
+            </button>
+          </form>
+
+          <h3 class="form-section-title history-title"><i class="fa-solid fa-clock-rotate-left"></i> Historial de visitas</h3>
+          {% if client.history %}
+          <ul class="history-list history-compact">
+            {% for item in client.history[:15] %}
+            <li>
+              <span class="history-kind kind-visit"><i class="fa-solid fa-check"></i> Visita</span>
+              <span class="history-note">{{ item.note or 'Visita registrada' }}{% if item.by %} <span class="muted">· Registrado por: {{ item.by }}</span>{% endif %}</span>
+              <span class="muted">{{ item.date|fechahora }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p class="empty-state">Aún no hay visitas registradas para este cliente.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

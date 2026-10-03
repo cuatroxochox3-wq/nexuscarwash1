@@ -1,0 +1,15 @@
+{# Pestañas del panel de administración. `admin_section` lo define cada vista. #}
+<nav class="admin-tabs" aria-label="Secciones del panel">
+  <a href="{{ url_for('admin_dashboard') }}" class="{{ 'is-active' if admin_section == 'clientes' else '' }}">
+    <i class="fa-solid fa-users"></i> Clientes y fidelidad
+  </a>
+  <a href="{{ url_for('admin_services') }}" class="{{ 'is-active' if admin_section == 'servicios' else '' }}">
+    <i class="fa-solid fa-images"></i> Servicios
+  </a>
+  <a href="{{ url_for('admin_products') }}" class="{{ 'is-active' if admin_section == 'productos' else '' }}">
+    <i class="fa-solid fa-spray-can-sparkles"></i> Productos
+  </a>
+  <a href="{{ url_for('upload_logo') }}" class="{{ 'is-active' if admin_section == 'logo' else '' }}">
+    <i class="fa-solid fa-copyright"></i> Logo
+  </a>
+</nav>

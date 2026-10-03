@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Crear cuenta{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+  <div class="auth-card auth-card-wide">
+    <aside class="auth-aside">
+      <span class="eyebrow eyebrow-light">Club NEXUS</span>
+      <h2>Regístrate y empieza a sumar beneficios</h2>
+      <p>Acumula visitas en cada lavado y obtén regalos exclusivos y lavados sin cargo.</p>
+      <ul class="aside-list">
+        {% for benefit in benefits %}
+        <li><i class="{{ benefit.icon }}"></i><span><strong>{{ benefit.title }}</strong><br>{{ benefit.text }}</span></li>
+        {% endfor %}
+      </ul>
+    </aside>
+
+    <div class="auth-main">
+      <div class="auth-head auth-head-left">
+        <h1>Crear cuenta</h1>
+        <p>Completa tus datos. Los campos con <span class="text-red">*</span> son obligatorios.</p>
+      </div>
+
+      <form method="post" action="{{ url_for('register') }}">
+        <div class="form-group">
+          <label class="form-label" for="full_name">Nombre completo <span class="req">*</span></label>
+          <div class="input-wrap">
+            <i class="fa-solid fa-id-card lead"></i>
+            <input class="input" type="text" id="full_name" name="full_name" value="{{ form.get('full_name', '') }}"
+                   placeholder="Ej: Juan Pérez" autocomplete="name" minlength="3" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="username">Nombre de usuario <span class="req">*</span></label>
+            <div class="input-wrap">
+              <i class="fa-solid fa-at lead"></i>
+              <input class="input" type="text" id="username" name="username" value="{{ form.get('username', '') }}"
+                     placeholder="juanperez" autocomplete="username" pattern="[A-Za-z0-9._]{3,30}" required>
+            </div>
+            <p class="form-hint">3 a 30 caracteres: letras, números, punto o guion bajo.</p>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="password">Contraseña <span class="req">*</span></label>
+            <div class="input-wrap">
+              <i class="fa-solid fa-lock lead"></i>
+              <input class="input" type="password" id="password" name="password"
+                     placeholder="Mínimo 6 caracteres" autocomplete="new-password" minlength="6" required>
+              <button type="button" class="input-action" data-toggle-password="password" aria-label="Mostrar contraseña">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="birth_date">Fecha de nacimiento <span class="req">*</span></label>
+            <div class="input-wrap">
+              <i class="fa-solid fa-cake-candles lead"></i>
+              <input class="input" type="date" id="birth_date" name="birth_date" value="{{ form.get('birth_date', '') }}"
+                     max="{{ today }}" required>
+            </div>
+            <p class="form-hint">La usamos para tu regalo de cumpleaños.</p>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="phone">Teléfono <span class="muted">(opcional)</span></label>
+            <div class="input-wrap">
+              <i class="fa-solid fa-phone lead"></i>
+              <input class="input" type="tel" id="phone" name="phone" value="{{ form.get('phone', '') }}"
+                     placeholder="+54 9 11 1234-5678" autocomplete="tel">
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg">
+          <i class="fa-solid fa-user-plus"></i> Crear mi cuenta
+        </button>
+      </form>
+
+      <p class="auth-footer">¿Ya tienes cuenta? <a href="{{ url_for('login') }}">Inicia sesión</a></p>
+    </div>
+  </div>
+</section>
+{% endblock %}

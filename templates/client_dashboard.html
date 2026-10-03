@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% from "macros.html" import service_card, product_card %}
+
+{#
+  Variables que envía app.client_dashboard (todas definidas siempre):
+  user, points, visits, progress, is_birthday_today, perks, history, services, products
+#}
+
+{% block title %}Mi panel{% endblock %}
+
+{% block content %}
+<section class="dash-header">
+  <div class="container">
+    <div class="dash-grid">
+      <div class="dash-welcome">
+        <span class="eyebrow">Panel de cliente</span>
+        <h1>Hola, {{ user.first_name }} 👋</h1>
+        <p>Este es tu espacio exclusivo en {{ brand_name }}: consulta tus visitas acumuladas, tus premios desbloqueados y los beneficios activos para ti.</p>
+
+        <div class="progress-box">
+          <div class="progress-top">
+            {% if visits < 4 %}
+              <span><strong>Próxima meta:</strong> Regalo especial (4 visitas)</span>
+              <span class="text-blue">Te faltan <strong>{{ 4 - visits }}</strong> visita{{ '' if (4 - visits) == 1 else 's' }}</span>
+            {% elif visits < 8 %}
+              <span><strong>Próxima meta:</strong> Lavado total gratis (8 visitas)</span>
+              <span class="text-red">Te faltan <strong>{{ 8 - visits }}</strong> visita{{ '' if (8 - visits) == 1 else 's' }}</span>
+            {% else %}
+              <span><i class="fa-solid fa-trophy text-gold"></i> ¡Completaste las 8 visitas! Tienes tu <strong>Lavado gratis</strong> listo</span>
+              <span class="text-green"><i class="fa-solid fa-circle-check"></i> Disponible</span>
+            {% endif %}
+          </div>
+          <div class="progress" role="progressbar" aria-valuenow="{{ user.progress_pct }}" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar" style="width: {{ user.progress_pct }}%"></div>
+          </div>
+          <div class="progress-milestones">
+            <span class="milestone {{ 'done' if visits >= 4 else 'current' if visits > 0 else '' }}">
+              <i class="fa-solid {{ 'fa-circle-check' if visits >= 4 else 'fa-gift' }}"></i> 4 visitas (Regalo)
+            </span>
+            <span class="milestone {{ 'done' if visits >= 8 else 'current' if visits >= 4 else '' }}">
+              <i class="fa-solid {{ 'fa-circle-check' if visits >= 8 else 'fa-car-side' }}"></i> 8 visitas (Lavado gratis)
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {# Tarjeta digital de socio #}
+      <div class="member-card">
+        <div class="member-top">
+          <div>
+            <div class="member-label">Socio Club {{ brand_name }}</div>
+            <div class="member-name">{{ user.full_name }}</div>
+            <div class="member-user">@{{ user.username }}</div>
+          </div>
+          <img src="{{ logo.url }}" alt="{{ logo.alt }}">
+        </div>
+        <div class="member-bottom">
+          <div>
+            <div class="member-label">Visitas acumuladas</div>
+            <div class="member-points">{{ visits }}</div>
+          </div>
+          <div class="member-visits">
+            <div class="member-label">Premios alcanzados</div>
+            <div class="member-rewards-pills">
+              {% if user.has_free_wash %}
+                <span class="pill-reward"><i class="fa-solid fa-car-side"></i> Lavado gratis</span>
+              {% elif user.has_gift %}
+                <span class="pill-reward"><i class="fa-solid fa-gift"></i> Regalo especial</span>
+              {% else %}
+                <span class="pill-pending">{{ visits }}/4 visitas</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% if is_birthday_today %}
+      <div class="birthday-banner">
+        <span class="bb-icon"><i class="fa-solid fa-cake-candles"></i></span>
+        <div>
+          <h3>¡Feliz cumpleaños, {{ user.first_name }}! 🎉</h3>
+          <p>Hoy te tenemos un regalo especial. Pasa por {{ brand_name }} a retirarlo.</p>
+        </div>
+      </div>
+    {% elif user.birthday_label %}
+      <div class="birthday-hint">
+        <i class="fa-solid fa-gift"></i>
+        <span>Tu cumpleaños es el <strong>{{ user.birthday_label }}</strong>: el día de tu cumpleaños te tenemos un regalo especial.</span>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+{# ================= BENEFICIOS ================= #}
+<section class="section-sm">
+  <div class="container">
+    <div class="section-title-row">
+      <div>
+        <span class="eyebrow">Tus beneficios</span>
+        <h2>Tus premios por fidelidad</h2>
+      </div>
+      <p>Menciona tu nombre de usuario al llegar al lavadero para canjear tus premios.</p>
+    </div>
+    <div class="grid grid-3">
+      {% for perk in perks %}
+      <article class="perk-card {{ 'is-highlight' if perk.highlight else '' }} {{ '' if perk.unlocked else 'is-locked' }}">
+        <span class="perk-icon"><i class="{{ perk.icon }}"></i></span>
+        <div>
+          <h3>{{ perk.title }}</h3>
+          <p>{{ perk.description }}</p>
+          {% if perk.highlight %}
+            <span class="status-pill status-hot"><i class="fa-solid fa-fire"></i> {{ perk.status }}</span>
+          {% elif perk.unlocked %}
+            <span class="status-pill status-on"><i class="fa-solid fa-circle-check"></i> {{ perk.status }}</span>
+          {% else %}
+            <span class="status-pill status-off"><i class="fa-solid fa-clock"></i> {{ perk.status }}</span>
+          {% endif %}
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+
+    {% if history %}
+    <div class="panel history-panel">
+      <div class="panel-head"><h2><i class="fa-solid fa-clock-rotate-left"></i> Historial de visitas al lavadero</h2></div>
+      <ul class="history-list">
+        {% for item in history %}
+        <li>
+          <span class="history-kind kind-visit"><i class="fa-solid fa-car-side"></i> Visita</span>
+          <span class="history-note">{{ item.note or 'Visita registrada' }}</span>
+          <span class="muted">{{ item.date|fecha }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+{# ================= CATÁLOGO ================= #}
+<section class="section-sm section-alt">
+  <div class="container">
+    <div class="section-title-row">
+      <div>
+        <span class="eyebrow">Catálogo</span>
+        <h2>Nuestros servicios</h2>
+      </div>
+    </div>
+    <div class="grid grid-3">
+      {% for service in services %}{{ service_card(service) }}{% endfor %}
+    </div>
+  </div>
+</section>
+
+{# ================= PRODUCTOS ================= #}
+<section class="section-sm">
+  <div class="container">
+    <div class="section-title-row">
+      <div>
+        <span class="eyebrow">Calidad garantizada</span>
+        <h2>Productos que usamos en tu auto</h2>
+      </div>
+    </div>
+    <div class="grid grid-2">
+      {% for product in products %}{{ product_card(product) }}{% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: nexus-car-wash
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.8
+      - key: SECRET_KEY
+        generateValue: true
+      - key: MONGO_URI
+        sync: false  # Introduce aquí tu URI de MongoDB Atlas (mongodb+srv://...)
+      - key: MONGO_DB_NAME
+        value: nexus_car_wash
+      - key: NEXUS_WHATSAPP
+        value: "5491100000000"
+      - key: NEXUS_INSTAGRAM
+        value: "https://www.instagram.com/nexuscarwash/"

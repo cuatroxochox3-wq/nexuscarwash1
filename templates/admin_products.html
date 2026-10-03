@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Productos utilizados{% endblock %}
+
+{% block content %}
+<section class="dash-header dash-header-compact">
+  <div class="container">
+    <div class="dash-title-row">
+      <div>
+        <span class="eyebrow">Administración</span>
+        <h1 class="dash-title">Productos e insumos de alta gama</h1>
+      </div>
+      <div class="dash-quick-actions">
+        <a href="{{ url_for('edit_product') }}" class="btn btn-primary">
+          <i class="fa-solid fa-plus"></i> Agregar nuevo producto
+        </a>
+      </div>
+    </div>
+    {% include "_admin_nav.html" %}
+  </div>
+</section>
+
+<section class="section-sm">
+  <div class="container">
+    <div class="section-title-row">
+      <div>
+        <h2>Insumos utilizados en el lavadero <span class="count-pill">{{ products|length }}</span></h2>
+        <p>Gestiona los productos y ceras de alta calidad que se muestran en la landing y generan confianza en tus clientes.</p>
+      </div>
+      <a href="{{ url_for('edit_product') }}" class="btn btn-primary btn-lg">
+        <i class="fa-solid fa-circle-plus"></i> Agregar nuevo producto
+      </a>
+    </div>
+
+    {% if products %}
+    <div class="grid grid-3">
+      {% for product in products %}
+      <article class="admin-service-card">
+        <div class="service-media">
+          {% if product.image_src %}
+            <img src="{{ product.image_src }}" alt="{{ product.name }}" loading="lazy" onerror="this.style.display='none'">
+          {% else %}
+            <span class="service-media-icon"><i class="{{ product.icon }}"></i></span>
+          {% endif %}
+          <span class="photo-source">
+            {% if product.has_image %}<i class="fa-solid fa-database"></i> Foto en MongoDB
+            {% elif product.image_url %}<i class="fa-solid fa-link"></i> Foto por enlace
+            {% else %}<i class="fa-solid fa-image"></i> Sin foto{% endif %}
+          </span>
+          {% if product.eco %}
+            <span class="service-badge" style="background: var(--nx-success); color: #fff;"><i class="fa-solid fa-leaf"></i> Eco</span>
+          {% endif %}
+        </div>
+        <div class="admin-service-body">
+          <span class="service-category">{{ product.brand }} · {{ product.category }}</span>
+          <h3>{{ product.name }}</h3>
+          <p>{{ product.description|truncate(120) }}</p>
+
+          {% if product.benefits %}
+          <div class="service-features-preview">
+            <span class="fs-xs text-muted"><strong>Beneficios clave:</strong></span>
+            <ul class="features-mini-list">
+              {% for b in product.benefits[:3] %}
+              <li><i class="fa-solid fa-check text-blue"></i> {{ b }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+
+          <div class="actions actions-left service-actions-bar">
+            <a href="{{ url_for('edit_product', product_id=product.id) }}" class="btn btn-primary btn-sm" title="Editar completamente nombre, marca, descripción, beneficios y foto">
+              <i class="fa-solid fa-pen-to-square"></i> Editar completamente
+            </a>
+            <form method="post" action="{{ url_for('delete_product', product_id=product.id) }}" class="inline-form"
+                  data-confirm="¿Eliminar el producto {{ product.name }}? Esta acción no se puede deshacer.">
+              <button type="submit" class="btn btn-sm btn-icon btn-danger-soft" title="Eliminar producto" aria-label="Eliminar {{ product.name }}">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+      <div class="panel">
+        <p class="empty-state">No hay productos cargados en el catálogo.</p>
+        <div class="text-center mt-3">
+          <a href="{{ url_for('edit_product') }}" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Agregar nuevo producto</a>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

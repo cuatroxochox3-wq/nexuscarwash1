@@ -1,0 +1,62 @@
+{# Componentes reutilizables entre la landing y el panel del cliente #}
+
+{% macro service_card(service) %}
+<article class="service-card">
+  <div class="service-media">
+    {% if service.image_src %}
+      <img src="{{ service.image_src }}" alt="{{ service.name }}" loading="lazy" onerror="this.style.display='none'">
+    {% else %}
+      <span class="service-media-icon"><i class="{{ service.icon }}"></i></span>
+    {% endif %}
+    {% if service.badge %}<span class="service-badge">{{ service.badge }}</span>{% endif %}
+  </div>
+  <div class="service-body">
+    <div class="service-meta">
+      <span class="service-icon"><i class="{{ service.icon or 'fa-solid fa-car' }}"></i></span>
+      <span class="service-category">{{ service.category }}</span>
+    </div>
+    <h3>{{ service.name }}</h3>
+    <p>{{ service.description }}</p>
+    {% if service.features %}
+    <ul class="check-list">
+      {% for feature in service.features %}
+      <li><i class="fa-solid fa-check"></i><span>{{ feature }}</span></li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+</article>
+{% endmacro %}
+
+{% macro product_card(product) %}
+<article class="product-card">
+  {% if product.image_src %}
+  <div class="product-media">
+    <img src="{{ product.image_src }}" alt="{{ product.name }}" loading="lazy" onerror="this.style.display='none'">
+  </div>
+  {% endif %}
+  <div class="product-head">
+    <span class="product-icon"><i class="{{ product.icon or 'fa-solid fa-flask' }}"></i></span>
+    <div>
+      <span class="product-brand">{{ product.brand }}</span>
+      <h3>{{ product.name }}</h3>
+      <span class="muted">{{ product.category }}</span>
+    </div>
+  </div>
+  {% if product.eco %}<span class="eco-tag"><i class="fa-solid fa-leaf"></i> Eco-friendly</span>{% endif %}
+  <p>{{ product.description }}</p>
+  {% if product.benefits %}
+  <ul class="tag-list">
+    {% for benefit in product.benefits %}<li>{{ benefit }}</li>{% endfor %}
+  </ul>
+  {% endif %}
+</article>
+{% endmacro %}
+
+{% macro benefit_card(benefit) %}
+<article class="benefit-card">
+  <span class="benefit-icon"><i class="{{ benefit.icon }}"></i></span>
+  <h3>{{ benefit.title }}</h3>
+  <p>{{ benefit.text }}</p>
+</article>
+{% endmacro %}

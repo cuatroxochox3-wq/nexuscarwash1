@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Logo{% endblock %}
+
+{% block content %}
+<section class="dash-header dash-header-compact">
+  <div class="container">
+    <span class="eyebrow">Administración</span>
+    <h1 class="dash-title">Panel de {{ brand_name }}</h1>
+    {% include "_admin_nav.html" %}
+  </div>
+</section>
+
+<section class="section-sm">
+  <div class="container">
+    <div class="panel form-card">
+      <div class="panel-head">
+        <h2>Logotipo oficial</h2>
+        <span class="muted"><i class="fa-solid fa-database"></i> Almacenado en MongoDB</span>
+      </div>
+      <div class="panel-body logo-uploader">
+        <div class="logo-preview"><img src="{{ logo.url }}" alt="{{ logo.alt }}"></div>
+        <div class="logo-form-wrap">
+          <p>
+            {% if logo.from_db %}
+              Archivo actual: <strong>{{ logo.filename }}</strong>.
+            {% else %}
+              Aún no hay un logo en la base de datos; se muestra el logo de respaldo.
+            {% endif %}
+            El logo se muestra en el encabezado de todas las páginas.
+          </p>
+          <form method="post" action="{{ url_for('upload_logo') }}" enctype="multipart/form-data" class="logo-form">
+            <input type="file" name="logo" class="file-input" accept="image/png,image/jpeg,image/webp,image/svg+xml" required>
+            <button type="submit" class="btn btn-dark btn-sm"><i class="fa-solid fa-upload"></i> Subir logo</button>
+          </form>
+          <p class="form-hint">PNG, JPG, WEBP o SVG · máximo 2 MB.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
