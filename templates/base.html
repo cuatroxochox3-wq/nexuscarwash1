@@ -51,13 +51,6 @@
     </div>
   </header>
 
-  {% if using_mock_db %}
-  <div class="dev-banner">
-    <i class="fa-solid fa-triangle-exclamation"></i>
-    MongoDB no está disponible: se usa una base de datos en memoria. Los cambios se perderán al reiniciar.
-  </div>
-  {% endif %}
-
   {# ================= MENSAJES FLASH ================= #}
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
